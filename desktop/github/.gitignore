@@ -12,8 +12,7 @@
 .lesshst
 .local/
 .pam_environment
-.pki/
-.profile
+.pki/.profile
 .python_history
 .sudo_as_admin_successful
 .viminfo
@@ -22,14 +21,12 @@
 
 # Uygulamalar ve dizinler
 DataGripProjects/
-copy/
-Resimler/
 docker_container_commands.txt
 enter
 google-chrome-stable_current_amd64.deb
 nano.44168.save
 r
-snap/
+
 
 # Dizin isimlerinde özel karakterler
 \304\260ndirilenler/
