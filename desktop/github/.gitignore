@@ -1,0 +1,39 @@
+# Gizli dosyalar ve dizinler
+.bash_history
+.bash_logout
+.bashrc
+.cache/
+.config/
+.docker/
+.dotnet/
+.gitconfig
+.gnupg/
+.java/
+.lesshst
+.local/
+.pam_environment
+.pki/
+.profile
+.python_history
+.sudo_as_admin_successful
+.viminfo
+.vscode/
+.wget-hsts
+
+# Uygulamalar ve dizinler
+DataGripProjects/
+copy/
+Resimler/
+docker_container_commands.txt
+enter
+google-chrome-stable_current_amd64.deb
+nano.44168.save
+r
+snap/
+
+# Dizin isimlerinde özel karakterler
+\304\260ndirilenler/
+\320\227\320\260\320\263\321\200\321\203\320\267\320\272\320\270/
+\320\230\320\267\320\276\320\261\321\200\320\260\320\266\320\265\320\275\320\270\321\217/
+\320\240\320\260\320\261\320\276\321\207\320\270\320\271 \321\201\321\202\320\276\320\273/
+
