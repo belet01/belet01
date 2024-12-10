@@ -3,7 +3,7 @@ from wtforms import StringField, TextAreaField, SelectField, SubmitField
 from wtforms.validators import DataRequired
 
 
-class TodoFrom(FlaskForm):
+class TodoForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
     completed = SelectField(
