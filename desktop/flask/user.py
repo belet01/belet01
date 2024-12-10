@@ -25,58 +25,20 @@ with app.app_context():
 
 @app.route("/")
 def home():
-    todos = []
-    for todo in TodoItem.query.order_by(TodoItem.data_completed.desc()).all():
-        todo.id = str(todo.id)
-        if todo.data_completed:
-            todo.data_completed = todo.data_completed.strftime("%b %d %Y %H:%M:%S")
-        else:
-            todo.data_completed = None 
-        todos.append(todo)
-    return render_template("index.html", title="Layout page", todos=todos)
+    return render_template("index.html")
 
 
 
 @app.route("/add_todo", methods=['GET', 'POST'])
 def add_todo():
-    
-    if request.method == 'POST':
-        form = TodoForm() 
-        todo_name = form.name.data
-        todo_description = form.description.data
-        completed = form.completed.data
-        completed = True if completed in [True, 'True', 'true', 1] else False
-        new_todo = TodoItem(
-            name=todo_name,
-            description=todo_description,
-            completed=completed,
-            data_completed=datetime.utcnow()
-        )
-        db.session.add(new_todo)
-        db.session.commit()
-        flash("Todo successfully added!", "success")
-        return redirect("/")
-    else:
-        form = TodoForm() 
-    return render_template("add_todo.html", form=form)
+    return render_template("add_todo.html")
 
 
 
 
 @app.route("/update_todo/<int:id>", methods=['POST', 'GET'])
 def update_todo(id):
-    todo = TodoItem.query.get_or_404(id)
-    form = TodoForm(obj=todo)
-    if request.method == 'POST':
-        todo.name = form.name.data
-        todo.description = form.description.data
-        todo.completed = form.completed.data
-        todo.date_created = datetime.utcnow() 
-        db.session.commit()
-        flash("Todo successfully updated", "success")
-        return redirect("/")
-
-    return render_template("update_todo.html", form=form, todo=todo)
+    return " "
   
 
 @app.route('/delete', methods = ['DELETE'])
@@ -88,10 +50,4 @@ def delete():
 if __name__== '__main__':
     app.run(debug=True)
 
-@app.route('/delete', methods = ['DELETE'])
-def delete():
-    return " "
-    
-if __name__== '__main__':
-    app.run(debug=True)
 
