@@ -4,8 +4,6 @@ from flask_sqlalchemy import SQLAlchemy
 import psycopg2
 from flask_migrate import Migrate
 from datetime import datetime
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask import session
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '6e9cbf576a31bba80f0a34e35c2e678b1e2eba9885edaf99f3ce4aa2f5'
@@ -65,6 +63,7 @@ def login():
             return redirect("/")
         else:
             flash("Invalid username or password.", "danger")
+            return redirect("/register")
     return render_template("login.html", form=form)
 
 
@@ -79,7 +78,6 @@ def home():
             todo.data_completed = None 
         todos.append(todo)
     return render_template("index.html", title="Layout page", todos=todos)
-
 
 
 @app.route("/add_todo", methods=['GET', 'POST'])
