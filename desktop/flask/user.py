@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, flash, redirect
+from flask import Flask, request, render_template, flash, redirect, session, url_for
 from forms import TodoForm, RegisterForm, LoginForm
 from flask_sqlalchemy import SQLAlchemy
 import psycopg2
@@ -34,6 +34,8 @@ with app.app_context():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    if 'email' in session:
+        return redirect(url_for('home'))
     form = RegisterForm()
     if request.method == 'POST' and form.validate_on_submit():
         username = form.username.data
@@ -54,6 +56,8 @@ def register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    if 'email' in session:
+        return redirect(url_for('home'))
     form = LoginForm()
     if request.method == 'POST':
         username = form.username.data
@@ -101,6 +105,8 @@ def add_todo():
     else:
         form = TodoForm() 
     return render_template("add_todo.html", form=form)
+
+
 
 
 
