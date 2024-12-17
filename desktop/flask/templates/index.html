@@ -1,5 +1,15 @@
 {% extends "loyout.html" %}
-{% block content %} 
+
+{% block content %}
+
+    <div class="top-right-buttons">
+        <form action="{{ url_for('update_all_todos', status=1) }}" method="get">
+            <button type="submit" class="btn btn-success" style="background-color: rgb(209, 222, 135); color: black;">Completed</button>
+        </form>
+        <form action="{{ url_for('update_all_todos', status=0) }}" method="get">
+            <button type="submit" class="btn btn-warning" style="background-color: #33beff; color: white;">Incomplete</button>
+        </form>
+    </div>
     {% for todo in todos %}
     <div class="card p-1 m-3">
         <div class="card-body">
@@ -12,11 +22,11 @@
             <p class="card-text text-muted">{{ todo.data_completed }}</p>
             <p class="card-text">{{ todo.description }}</p>
 
-            <a href="{{ url_for('update_todo', id = todo.id)}}" class="btn btn-outline-info btn-sm"> Update</a>
-            
-            <a href="{{ url_for('delete_todo', id = todo.id)}}" class="btn btn-outline-danger btn-sm"> Delete </a>
+            {% if 'username' in session %}
+                <a href="{{ url_for('update_todo', id = todo.id)}}" class="btn btn-outline-info btn-sm"> Update</a>
+                <a href="{{ url_for('delete_todo', id = todo.id)}}" class="btn btn-outline-danger btn-sm"> Delete </a>
+            {% endif %}
         </div>
     </div>
-    {%endfor%}
-
+    {% endfor %}
 {% endblock %}

@@ -10,14 +10,31 @@
     crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.12.5/dist/sweetalert2.all.min.js"></script>
     <style>
+        body {
+            background: linear-gradient(to right, #f7f0e4, #f5e3c7); /* Kremsi, yumuşak tonlar */
+            height: 100vh;
+            background-size: cover;
+        }
+
         .top-right-buttons {
-            position: absolute; /* Sayfa içindeki bir noktaya göre konumlandırma */
+            position: absolute;
             top: 80px; /* Navbar'ın hemen altında */
             right: 20px; /* Sağdan 20px içeride */
         }
 
         .top-right-buttons form {
             margin-bottom: 10px; /* Butonlar arasında boşluk */
+        }
+
+        /* Sağ alt köşeye yerleştirilen butonlar */
+        .bottom-right-buttons {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
+
+        .bottom-right-buttons form {
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -39,16 +56,16 @@
                 </li>
               </ul>
             </div>
-          </nav>
+        </nav>
     </header>
 
-    <div class="top-right-buttons">
-        <form action="{{ url_for('update_all_todos', status=1) }}" method="get">
-            <button type="submit" class="btn btn-success" style="background-color: rgb(209, 222, 135); color: black;">Completed</button>
-        </form>
-        <form action="{{ url_for('update_all_todos', status=0) }}" method="get">
-            <button type="submit" class="btn btn-warning" style="background-color: #33beff; color: white;">Incomplete</button>
-        </form>
+    <div class="bottom-right-buttons">
+        {% if 'username' in session %}
+            <a href="{{ url_for('logout') }}" class="btn btn-outline-secondary btn-sm">Logout</a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-sm">Login</a>
+            <a href="{{ url_for('register') }}" class="btn btn-outline-primary btn-sm">Register</a>
+        {% endif %}
     </div>
 
     <main class="container-fluid">
@@ -75,7 +92,9 @@
             </div>
         </div>
     </main>
+
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
 </body>
 </html>
+
