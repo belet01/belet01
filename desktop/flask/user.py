@@ -36,10 +36,8 @@ with app.app_context():
 def update_all_todos(status):
     if status == 1: 
         todos = db.session.query(TodoItem).filter_by(completed=True).all()
-        flash("Tamamlanan görevler gösteriliyor.", "info")
     elif status == 0: 
-        todos = db.session.query(TodoItem).filter_by(completed=False).all()
-        flash("Tamamlanmayan görevler gösteriliyor.", "info")
+        todos = db.session.query(TodoItem).filter_by(completed=False).all() 
     else:  
         flash("Geçersiz durum!", "danger")
         return redirect("/")
