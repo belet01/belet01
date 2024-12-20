@@ -1,9 +1,9 @@
 from flask import Flask, request, render_template, flash, redirect, session, url_for
 from forms import TodoForm, RegisterForm, LoginForm
 from flask_sqlalchemy import SQLAlchemy
-import psycopg2
 from flask_migrate import Migrate
 import time
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '6e9cbf576a31bba80f0a34e35c2e678b1e2eba9885edaf99f3ce4aa2f5'
@@ -12,12 +12,14 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), nullable=False, unique=True)
     email = db.Column(db.String(120), nullable=False, unique=True)
     password_hash = db.Column(db.String(900), nullable=False)
     todos = db.relationship('TodoItem', backref='user', lazy=True)
+
 
 class TodoItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -50,6 +52,9 @@ def home():
     todos = TodoItem.query.order_by(TodoItem.data_completed.desc()).all()
     return render_template("index.html", title="Layout page", todos=todos)
 
+
+
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if 'username' in session:
@@ -72,6 +77,11 @@ def register():
             return redirect("/login")
     return render_template("register.html", form=form)
 
+
+
+
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if 'username' in session:
@@ -93,10 +103,10 @@ def login():
 @app.route("/add_todo", methods=['GET', 'POST'])
 def add_todo():
     if 'username' not in session:
-        flash("You must be logged in to add todos.", "danger")
+        flash("Todo ekleyemezsiniz!", "Hata")
         return redirect(url_for('login')) 
     form = TodoForm() 
-    if form.validate_on_submit():
+    if request.method== 'POST' and form.validate_on_submit():
         todo_name = form.name.data
         todo_description = form.description.data
         completed = form.completed.data
@@ -138,7 +148,7 @@ def update_todo(id):
         })
         db.session.commit()
         flash("Todo successfully updated!", "success")
-        return redirect("/")
+        return redirect(url_for('my_profile', username=session['username']))
 
     else:
         form = TodoForm()
@@ -173,6 +183,69 @@ def logout():
         return redirect(url_for('login'))
     return render_template('logout.html')
 
+
+@app.route('/user_profile/<username>')
+def profile(username):
+    current_user = session.get('username')
+    user = Users.query.filter_by(username=username).first()
+    todos = TodoItem.query.filter_by(user_id=user.id).all()
+    todo_count = len(todos)
+    if current_user == username:
+        return render_template('myprofil.html', user=user, todos=todos, todo_count=todo_count)
+    return render_template('user_profile.html', user=user, todos=todos, todo_count=todo_count)
+
+
+@app.route('/my_profile/<username>')
+def my_profile(username):
+    user = Users.query.filter_by(username=username).first()
+    todos = TodoItem.query.filter_by(user_id=user.id).all()
+    todo_count = len(todos)
+    return render_template('myprofil.html', user=user, todos=todos, todo_count=todo_count)
+
+
+@app.route("/profil/update/<int:id>", methods=['GET', 'POST'])
+def profile_settings(id):
+    users = db.session.query(Users).get(id)
+    if request.method == 'POST':
+        form = LoginForm(request.form)
+        username = form.username.data
+        password = form.password.data
+        
+        db.session.query(Users).filter(Users.id == id).update({
+            "username": username,
+            "password_hash": password  
+        })
+        db.session.commit()
+        session['username'] = username
+        session['password_hash'] = password 
+        flash("Profil başarıyla güncellendi!", "success")
+        return redirect(url_for('my_profile', username=session['username']))
+    else:
+        form = LoginForm()
+        if users:
+            form.username.data = users.username
+            form.password.data = users.password_hash 
+
+    return render_template("profil_settings.html", form=form, users=users)
+
+
+@app.route('/theme/settings', methods=['GET', 'POST'])
+def theme_settings():
+    if request.method == 'POST':
+        selected_theme = request.form.get('theme')  
+        session['theme'] = selected_theme  
+        return redirect(url_for('home'))  
+    return render_template('theme_settings.html')
+
+
+
+@app.route('/username/delete/<id>',  methods=['POST', 'GET'])
+def delete_account(id):
+    user= db.session.query(Users).get(id)
+    db.session.delete(user)
+    db.session.commit()
+    session.pop('username', None)
+    return redirect("/login")
 
 if __name__== '__main__':
     app.run(debug=True)
