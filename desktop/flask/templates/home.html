@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Switcher</title>
+    <style>
+        body.dark {
+            background-color: #333;
+            color: #fff;
+        }
+        body.light {
+            background-color: #fff;
+            color: #000;
+        }
+        body.creamy {
+            background: linear-gradient(to right, #fcddfd38, #e9cb9c);
+            color: #333;
+        }
+    </style>
+</head>
+<body class="{{ theme }}">
+    <header>
+        <h1>Dynamic Theme Changer</h1>
+    </header>
+    <main>
+        <p>Current theme: {{ theme }}</p>
+        <div>
+            <button onclick="changeTheme('light')">Light Theme</button>
+            <button onclick="changeTheme('dark')">Dark Theme</button>
+            <button onclick="changeTheme('creamy')">Creamy Theme</button>
+        </div>
+    </main>
+
+    <script>
+        function changeTheme(theme) {
+            fetch('/change_theme', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ theme: theme }), // JSON formatında tema gönder
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.body.className = theme; // Temayı güncelle
+                    console.log('Theme changed to:', theme);
+                } else {
+                    console.error('Failed to change theme');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
