@@ -6,7 +6,7 @@
             {{ form.csrf_token }}
             <fieldset class="form-group">
                 <legend>Add Todo</legend>
-                
+        
                 <div class="form-group">
                     {{ form.name.label(class="form-control-label") }}
                     {% if form.name.errors %}
@@ -20,8 +20,7 @@
                         {{ form.name(class="form-control") }}
                     {% endif %}
                 </div>
-
-                <!-- Description Field -->
+        
                 <div class="form-group">
                     {{ form.description.label(class="form-control-label") }}
                     {% if form.description.errors %}
@@ -35,8 +34,7 @@
                         {{ form.description(class="form-control") }}
                     {% endif %}
                 </div>
-
-                <!-- Completed Field -->
+        
                 <div class="form-group">
                     {{ form.completed.label(class="form-control-label") }}
                     {% if form.completed.errors %}
@@ -50,13 +48,12 @@
                         {{ form.completed(class="form-control") }}
                     {% endif %}
                 </div>
-
             </fieldset>
-
-            <!-- Submit Button -->
+        
             <div class="form-group" style="margin-top: 20px;">
                 {{ form.submit(class="btn btn-primary") }}
             </div>
         </form>
+        
     </div>
 {% endblock %}

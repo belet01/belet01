@@ -1,29 +1,92 @@
 {% extends "loyout.html" %}
 {% block content %}
-    <div class="profile-container">
-        <h1>{{ (user.username).capitalize()}}'s profile</h1>
-        <hr>
-        <button style="background-color: bisque; font-style: italic;">
-           {{(user.username).capitalize()}}'s todos total: {{ todo_count }}
-        </button>
-        <hr>
+    <div class="profile-container" style="display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 20px;">
+        <!-- Profil bilgileri -->
+        <div style="text-align: center;">
+            <!-- Kullanıcı adı -->
+            {% if session.get('theme') == 'dark' %}
+                <h5 style="margin: 0 0 10px 0; font-style: italic; font-size: 1em; color: aliceblue;">
+                    {{ user.username }}
+                </h5>
+            {%else%}
+                <h5 style="margin: 0 0 10px 0; font-style: italic; font-size: 1em; color: rgb(19, 18, 8);">
+                    {{ user.username }}
+                </h5>
+            {% endif %}
+            <!-- Yuvarlak profil alanı -->
+            <div style="width: 80px; height: 80px; border-radius: 50%; background-color: #d4b9a6; display: flex; justify-content: center; align-items: center; margin: 0 auto;">
+                <span style="font-size: 30px; color: #333;">{{ user.username[0]|upper }}</span>
+            </div>
+        </div>
 
-        <h3> Added Todos:</h3>
+        <!-- Takipçi, takip edilen ve toplam todo -->
+        {% if session.get('theme') == 'dark' %}
+            <div style="display: flex; justify-content: center; align-items: center; gap: 20px; color: aliceblue;">
+        {%else%}
+            <div style="display: flex; justify-content: center; align-items: center; gap: 20px;">
+        {% endif %}
+            <div style="text-align: center;">
+                <h5 style="margin: 0;">Follower</h5>
+                <p style="margin: 0; font-size: 1.2em;">{{ followers_count }}</p>
+            </div>
+
+            <!-- Takip edilen -->
+            <div style="text-align: center;">
+                <h5 style="margin: 0;">Follow</h5>
+                <p style="margin: 0; font-size: 1.2em;">{{ followees_count }}</p>
+            </div>
+
+            <!-- Toplam yapılacak iş -->
+            <div style="text-align: center;">
+                <h5 style="margin: 0;">Total Todos</h5>
+                <p style="margin: 0; font-size: 1.2em;">{{ todo_count }}</p>
+            </div>
+        </div>
+
+        <!-- Takip etme durumu -->
+        {% if 'username' in session %}
+            {% if user.username != session['username'] %}
+                {% if user in followed_users %}
+                    <!-- Eğer takip ediyorsa "Unfollow" butonu -->
+                    <form action="{{ url_for('follow', user_id=user.id) }}" method="POST">
+                        <button type="submit" class="btn btn-outline-danger btn-lg" style="margin-left: 20px; padding: 10px 20px;">Unfollow</button>
+                    </form>
+                {% else %}
+                    <!-- Eğer takip etmiyorsa "Follow" butonu -->
+                    <form action="{{ url_for('follow', user_id=user.id) }}" method="POST">
+                        <button type="submit" class="btn btn-outline-primary btn-lg" style="margin-left: 20px; padding: 10px 20px;">Follow</button>
+                    </form>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    </div>
+    {% if session.get('theme') == 'dark' %}
+        <hr style="margin: 20px 0; color: azure;">
+    {%else%}
         <hr>
+    {% endif %}
+    <!-- Devam eden kısım -->
+    <div class="profile-container">
+        {% if session.get('theme') == 'dark' %}
+            <h2 style="color: aliceblue;"> {{user.username.capitalize()}}'s  todos:</h2>
+        {% else %}
+            <h2> {{user.username.capitalize()}}'s todos:</h2>
+        {% endif %}
         {% if todo_count != 0 %}
             {% for todo in todos %}
-                <div class="card p-1 m-3">
-                    <div class="card-body">
-                        {% if todo.completed %}
-                            <h5 class="card-title"><del>{{ todo.name }}</del></h5>
-                        {% else %}
-                            <h5 class="card-title">{{ todo.name }}</h5>
-                        {% endif %}
-                        <p class="card-text text-muted">{{ todo.data_completed }}</p>
-                        <p class="card-text">{{ todo.description }}</p>
-                    </div>
+            <div class="mt-4 card p-2 m-4" style="background-color: rgb(246, 250, 218);">
+                <div class="card-body">
+                    {% if todo.completed %}
+                        <h5 class="card-title"><del>{{ todo.name }}</del></h5>
+                    {% else %}
+                        <h5 class="card-title">{{ todo.name }}</h5>
+                    {% endif %}
+                    <p class="card-text text-muted">{{ todo.data_completed }}</p>
+                    <p class="card-text">{{ todo.description }}</p>
                 </div>
+            </div>
             {% endfor %}
         {% endif %}
     </div>
 {% endblock %}
+

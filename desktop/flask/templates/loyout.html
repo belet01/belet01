@@ -9,9 +9,125 @@
     integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" 
     crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.12.5/dist/sweetalert2.all.min.js"></script>
+
+    {% if session.get('theme') == 'dark' %}
     <style>
         body {
-            background: linear-gradient(to right, #fcddfd38, #e9cb9c); /* Kremsi, yumuşak tonlar */
+            background:  rgb(66, 66, 66);
+            background-size: cover;
+
+            /* Sayfa yüklenme animasyonu */
+            animation: fadeIn 0.2s ease-in-out;
+        }
+
+
+        /* Sayfa kapanma animasyonu */
+        .fade-out {
+            animation: fadeOut 0.3s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
+        .top-right-buttons {
+            color: rgb(237, 232, 227);
+            background-color: #121212;
+            position: absolute;
+            top: 80px; /* Navbar'ın hemen altında */
+            right: 20px; /* Sağdan 20px içeride */
+        }
+
+        .top-right-buttons form {
+            margin-bottom: 10px; /* Butonlar arasında boşluk */
+        }
+
+        /* Sağ alt köşeye yerleştirilen butonlar */
+        .bottom-right-buttons {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
+
+        .bottom-right-buttons form {
+            margin-bottom: 10px;
+        }
+    </style>
+    {% elif session.get('theme') == 'light' %}
+    <style>
+        body {
+            background: #f8f4f4; /* Arka planı tamamen siyah yap */
+            height: 100vh;
+            background-size: cover;
+
+            /* Sayfa yüklenme animasyonu */
+            animation: fadeIn 0.2s ease-in-out;
+        }
+
+
+        /* Sayfa kapanma animasyonu */
+        .fade-out {
+            animation: fadeOut 0.3s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
+        .top-right-buttons {
+
+            position: absolute;
+            top: 80px; /* Navbar'ın hemen altında */
+            right: 20px; /* Sağdan 20px içeride */
+        }
+
+        .top-right-buttons form {
+            margin-bottom: 10px; /* Butonlar arasında boşluk */
+        }
+
+        /* Sağ alt köşeye yerleştirilen butonlar */
+        .bottom-right-buttons {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
+
+        .bottom-right-buttons form {
+            margin-bottom: 10px;
+        }
+    </style>
+    {% elif session.get('theme') == 'creamy' %}
+    <style>
+        body {
+            background: linear-gradient(to right, #f2dfaceb, #fde7fcf7); /* Kremsi, yumuşak tonlar */
             height: 100vh;
             background-size: cover;
 
@@ -62,23 +178,9 @@
         .bottom-right-buttons form {
             margin-bottom: 10px;
         }
-
-        body.dark {
-            background-color: #333;
-            color: #fff;
-        }
-
-        body.light {
-            background-color: #fff;
-            color: #000;
-        }
-
-        body.creamy {
-            background: linear-gradient(to right, #fcddfd38, #e9cb9c);
-            color: #333;
-        }
-
     </style>
+    {% endif %}
+
 </head>
 <body>
     <header>
@@ -119,13 +221,6 @@
                         }
                     }
                 </style>
-            {%else%}
-                <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                    <a class="navbar-brand my-profile-btn" href="{{ url_for('add_todo') }}  ">Navbar</a>
-                    <button style="font-style: italic;" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                </nav>
             {%endif%}  
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
               <ul class="navbar-nav mr-auto">
@@ -145,18 +240,19 @@
             <div class="col-md-2"></div>
             <div class="col-md-8">
                 {% with messages = get_flashed_messages(with_categories = true)%}
-                    {%if messages %}
-                        {%for category, message in messages%}
+                    {% if messages %}
+                        {% for category, message in messages %}
                             <script>
                                 Swal.fire({
-                                    title:"{{ category.title()}}",
-                                    text: "{{message}}",
-                                    icon: "{{category}}",
-                                    closeOnConfirm: false})
+                                    title: "{{ category|capitalize }}",  <!-- title() yerine capitalize() kullanıldı -->
+                                    text: "{{ message }}",
+                                    icon: "{{ category }}",
+                                    closeOnConfirm: false
+                                })
                             </script>
-                        {%endfor%}
-                    {%endif%}
-                {%endwith%}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
                 {% block content %}
                 {% endblock content %}
             </div>

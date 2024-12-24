@@ -1,5 +1,7 @@
 {% extends "loyout.html" %}
+
 {% block content %}
+
     <div class="top-right-buttons">
         <form action="{{ url_for('update_all_todos', status=1) }}" method="get">
             <button type="submit" class="btn btn-success" style="background-color: rgb(242, 225, 203); color: black;">Completed</button>
@@ -8,35 +10,60 @@
             <button type="submit" class="btn btn-warning" style="background-color: #937e8f; color: rgb(245, 250, 222);">Incomplete</button>
         </form>
     </div>
-
-    <!-- Todo kartları -->
+    <!-- Kullanıcıların todo kartları -->
     {% for todo in todos %}
-    <div class="card p-1 m-3">
-        <div class="card-body">
-            {% if todo.user %}
-            <div class="username-display text-left mb-1">
-                <div style="font-style: italic; font-weight: normal;">
-                    Username:
-                    <a href="{{ url_for('profile', username=todo.user.username) }}">
-                        {{ todo.user.username }}</a>
+        <div class="card p-1 m-3 position-relative">
+            <div class="card-body">
+                {% if todo.user %}
+                <div class="username-display text-left mb-1">
+                    <div style="font-style: italic; font-weight: normal;">
+                        <a href="{{ url_for('profile', username=todo.user.username) }}" style="color: rgb(112, 130, 160);">
+                            {{ todo.user.username }}</a>
+                        <hr>    
+                    </div>
                 </div>
+                {% endif %}
+        
+                {% if todo.completed %}
+                    <h5 class="card-title"><del>{{ todo.name }}</del></h5>
+                {% else %}
+                    <h5 class="card-title"><span class="underline">{{ todo.name }}</span></h5>
+                {% endif %}
+        
+                <p class="card-text text-muted">{{ todo.data_completed }}</p>
+                <p class="card-text">{{ todo.description }}</p>
+                {% if 'username' in session %}
+                    <div class="dropdown position-absolute top-0 end-0 m-3" style="top: 0; right: 0; margin-top: 5px; margin-right: 5px;"   >
+                        <button id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: none; border: none; font-size: 15px;">
+                            <span >⋮</span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            {% if todo.user.username == session['username'] %}
+                            <li><a class="dropdown-item" href="{{ url_for('update_todo', id=todo.id) }}">Update</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('delete_todo', id=todo.id) }}">Delete</a></li>
+                            {% else %}
+                            <li><a class="dropdown-item" href="#">View</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                {% if 'username' in session %}
+                    {% if todo.user.username != session['username'] %}
+                        {% if todo.user in followed_users %}
+                            <!-- Eğer takip ediliyorsa "Unfollow" butonu -->
+                            <form action="{{ url_for('follow', user_id=todo.user.id) }}" method="POST">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Unfollow</button>
+                            </form>
+                        {% else %}
+                            <!-- Eğer takip edilmiyorsa "Follow" butonu -->
+                            <form action="{{ url_for('follow', user_id=todo.user.id) }}" method="POST">
+                                <button type="submit" class="btn btn-outline-primary btn-sm">Follow</button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
             </div>
-            {% endif %}
-
-            {% if todo.completed %}
-                <h5 class="card-title"><del>{{ todo.name }}</del></h5>
-            {% else %}
-                <h5 class="card-title"><span class="underline">{{ todo.name }}</span></h5>
-            {% endif %}
-
-            <p class="card-text text-muted">{{ todo.data_completed }}</p>
-            <p class="card-text">{{ todo.description }}</p>
-
-            {% if 'username' in session %}
-                <a href="{{ url_for('update_todo', id=todo.id) }}" class="btn btn-outline-info btn-sm">Update</a>
-                <a href="{{ url_for('delete_todo', id=todo.id) }}" class="btn btn-outline-danger btn-sm">Delete</a>
-            {% endif %}
         </div>
-    </div>
     {% endfor %}
 {% endblock %}

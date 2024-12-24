@@ -1,9 +1,8 @@
-from flask import Flask, request, render_template, flash, redirect, session, url_for
+from flask import Flask, request, render_template, flash, redirect, session, url_for, jsonify
 from forms import TodoForm, RegisterForm, LoginForm
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import time
-
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '6e9cbf576a31bba80f0a34e35c2e678b1e2eba9885edaf99f3ce4aa2f5'
@@ -19,6 +18,15 @@ class Users(db.Model):
     email = db.Column(db.String(120), nullable=False, unique=True)
     password_hash = db.Column(db.String(900), nullable=False)
     todos = db.relationship('TodoItem', backref='user', lazy=True)
+    followers = db.Table('followers',
+        db.Column('follower_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+        db.Column('followed_id', db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    )
+    followed = db.relationship('Users', secondary=followers,
+                               primaryjoin=(id == followers.c.follower_id),
+                               secondaryjoin=(id == followers.c.followed_id),
+                               backref=db.backref('followers', lazy='dynamic'),
+                               lazy='dynamic')
 
 
 class TodoItem(db.Model):
@@ -44,13 +52,19 @@ def update_all_todos(status):
 
 @app.route("/")
 def home():
+    theme = session.get('theme', 'creamy')  # Kullanıcının teması veya varsayılan 'creamy'
+    followed_users = []  # Takip edilen kullanıcılar
+
     if 'username' in session:
         username = session['username']
         me = Users.query.filter_by(username=username).first()
+        followed_users = me.followed.all()  # Kullanıcının takip ettiği kişiler
+
         todos = TodoItem.query.order_by(TodoItem.data_completed.desc()).all()
-        return render_template("index.html", title="Layout page", todos=todos, me=me)
+        return render_template("index.html", title="Layout page", todos=todos, me=me, theme=theme, followed_users=followed_users)
+
     todos = TodoItem.query.order_by(TodoItem.data_completed.desc()).all()
-    return render_template("index.html", title="Layout page", todos=todos)
+    return render_template("index.html", title="Layout page", todos=todos, theme=theme)
 
 
 
@@ -80,13 +94,10 @@ def register():
 
 
 
-
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if 'username' in session:
         return redirect(url_for('home'))
-    
     form = LoginForm()
     if request.method == 'POST':
         username = form.username.data
@@ -186,13 +197,23 @@ def logout():
 
 @app.route('/user_profile/<username>')
 def profile(username):
-    current_user = session.get('username')
-    user = Users.query.filter_by(username=username).first()
+    user = Users.query.filter_by(username=username).first_or_404()
     todos = TodoItem.query.filter_by(user_id=user.id).all()
     todo_count = len(todos)
+    follower_count = user.followers.count()  
+    followee_count = user.followed.count()
+    current_user = session.get('username')
+    followed_users = []
+    if current_user:
+        current_user_obj = Users.query.filter_by(username=current_user).first()
+        followed_users = current_user_obj.followed.all()
     if current_user == username:
-        return render_template('myprofil.html', user=user, todos=todos, todo_count=todo_count)
-    return render_template('user_profile.html', user=user, todos=todos, todo_count=todo_count)
+        return render_template('myprofil.html', user=user, followers_count=follower_count, 
+                               followees_count=followee_count, todo_count=todo_count, todos=todos)
+    return render_template('user_profile.html', user=user, followers_count=follower_count, 
+                           followees_count=followee_count, todo_count=todo_count, todos=todos, 
+                           followed_users=followed_users)
+
 
 
 @app.route('/my_profile/<username>')
@@ -200,7 +221,10 @@ def my_profile(username):
     user = Users.query.filter_by(username=username).first()
     todos = TodoItem.query.filter_by(user_id=user.id).all()
     todo_count = len(todos)
-    return render_template('myprofil.html', user=user, todos=todos, todo_count=todo_count)
+    follower_count = user.followers.count()  
+    followee_count = user.followed.count()
+
+    return render_template('myprofil.html', user=user, followers_count=follower_count, followees_count=followee_count, todo_count= todo_count, todos= todos)
 
 
 @app.route("/profil/update/<int:id>", methods=['GET', 'POST'])
@@ -228,20 +252,49 @@ def profile_settings(id):
 
     return render_template("profil_settings.html", form=form, users=users)
 
+@app.route('/change_theme', methods=['POST'])
+def change_theme():
+    data = request.get_json()
+    theme = data.get('theme')
+    if theme in ['light', 'dark', 'creamy']:
+        session['theme'] = theme
+        return jsonify({'success': True})
+    return jsonify({'success': False})
 
-@app.route('/theme/settings', methods=['GET', 'POST'])
-def theme_settings():
-    if request.method == 'POST':
-        selected_theme = request.form.get('theme')  
-        session['theme'] = selected_theme  
-        return redirect(url_for('home'))  
+
+@app.route('/change_theme_page')
+def change_theme_page():
     return render_template('theme_settings.html')
+
+
+@app.route('/follow/<int:user_id>', methods=['POST'])
+def follow(user_id):
+    user_to_follow = Users.query.get_or_404(user_id)
+    username = session.get('username')  # Check if the user is logged in
+    
+    current_user = Users.query.filter_by(username=username).first()
+    if current_user.id == user_to_follow.id:
+        flash("You cannot follow yourself.", "danger")
+        return redirect(url_for('profile', username=current_user.username))
+        
+    if user_to_follow not in current_user.followed:
+        current_user.followed.append(user_to_follow)
+        db.session.commit()
+        flash("You have started following this user.", "success")
+    else:
+        current_user.followed.remove(user_to_follow)
+        db.session.commit()
+        flash("You have unfollowed this user.", "success")
+    return redirect(url_for('home', username=user_to_follow.username ))
 
 
 
 @app.route('/username/delete/<id>',  methods=['POST', 'GET'])
 def delete_account(id):
     user= db.session.query(Users).get(id)
+    todos = TodoItem.query.filter_by(user_id=id).all()
+    for todo in todos:
+        db.session.delete(todo)
     db.session.delete(user)
     db.session.commit()
     session.pop('username', None)

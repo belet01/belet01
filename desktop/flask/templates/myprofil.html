@@ -1,56 +1,101 @@
 {% extends "loyout.html" %}
 {% block content %}
-    <div class="profile-container">
-        <h2> My profile ({{ user.username }})!</h2>
-        <hr>
-        <div class="container">
-            <button  style="background-color: bisque; font-style: italic;"> Total todo:{{ todo_count}} 
-            </button>
+    <div class="profile-container" style="display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 20px;">
+        <div style="text-align: center;">
+            {% if session.get('theme') == 'dark' %}
+                <h5 style="margin: 0 0 10px 0; font-style: italic; font-size: 1em; color: aliceblue;">
+                    {{ user.username }}
+                </h5>
+            {%else%}
+                <h5 style="margin: 0 0 10px 0; font-style: italic; font-size: 1em; color: rgb(19, 18, 8);">
+                    {{ user.username }}
+                </h5>
+            {% endif %}
+            <div style="width: 80px; height: 80px; border-radius: 50%; background-color: #d4b9a6; display: flex; justify-content: center; align-items: center; margin: 0 auto;">
+                <span style="font-size: 30px; color: #333;">{{ user.username[0]|upper }}</span>
+            </div>
+        </div>
+
+        {% if session.get('theme') == 'dark' %}
+            <div style="display: flex; justify-content: center; align-items: center; gap: 20px; color: aliceblue;">
+        {%else%}
+            <div style="display: flex; justify-content: center; align-items: center; gap: 20px;">
+        {% endif %}
+            <!-- Takipçiler -->
+            <div style="text-align: center;">
+                <h5 style="margin: 0;">Follower</h5>
+                <p style="margin: 0; font-size: 1.2em;">{{ followers_count }}</p>
+            </div>
+
+            <!-- Takip edilen -->
+            <div style="text-align: center;">
+                <h5 style="margin: 0;">Follow</h5>
+                <p style="margin: 0; font-size: 1.2em;">{{ followees_count }}</p>
+            </div>
+
+            <!-- Toplam yapılacak iş -->
+            <div style="text-align: center;">
+                <h5 style="margin: 0;">Total Todos</h5>
+                <p style="margin: 0; font-size: 1.2em;">{{ todo_count }}</p>
+            </div>
         </div>
     </div>
-    <hr> 
+
+    {% if session.get('theme') == 'dark' %}
+        <hr style="margin: 20px 0; color: azure;">
+    {%else%}
+        <hr>
+    {% endif %}
+
+    <!-- Devam eden kısım -->
     <div class="profile-container">
-        <h3>Added Todos:</h3>
-            {% if todo_count != 0 %}
-                {% for todo in todos %}
-                <div class="mt-4 card p-2 m-4" style="background-color: rgb(232, 217, 228);">
-                    <div class="card-body">
-                        {% if todo.completed %}
-                            <h5 class="card-title"><del>{{ todo.name }}</del></h5>
-                        {% else %}
-                            <h5 class="card-title">{{ todo.name }}</h5>
-                        {% endif %}
-                        <p class="card-text text-muted">{{ todo.data_completed }}</p>
-                        <p class="card-text">{{ todo.description }}</p>
-                        {% if 'username' in session %}
-                            <a href="{{ url_for('update_todo', id=todo.id) }}" class="btn btn-outline-info btn-sm">Update</a>
-                            <a href="{{ url_for('delete_todo', id=todo.id) }}" class="btn btn-outline-danger btn-sm">Delete</a>
-                        {% endif %}
-                {% endfor %}
-            {% else %}
-                <div id="logoutConfirmation" class="alert alert-warning alert-dismissible fade show" role="alert" 
-                style="position: fixed; top: 250px; left: 50%; transform: translateX(-50%); z-index: 9999; width: 550px; background-color: #d4b9a6; color: #333; text-align: center; padding-bottom: 20px;">
-                <strong>Todo eklemek ister misiniz?</strong>
-                <div style="display: flex; justify-content: center; margin-top: 20px;">
-                <form method="POST" style="margin-right: 10px;">
-                        <a href="{{ url_for('add_todo') }}" class="btn btn-secondary"> Yes</a> 
-                    <a href="{{ url_for('my_profile', username=session['username'])}}" class="btn btn-secondary">No</a>
-                </form>
+        {% if session.get('theme') == 'dark' %}
+            <h2 style="color: aliceblue;">Your todos:</h2>
+        {% else %}
+            <h2>Your todos:</h2>
+        {% endif %}
+        {% if todo_count != 0 %}
+            {% for todo in todos %}
+            <div class="mt-4 card p-2 m-4" style="background-color: rgb(246, 250, 218);">
+                <div class="card-body">
+                    {% if todo.completed %}
+                        <h5 class="card-title"><del>{{ todo.name }}</del></h5>
+                    {% else %}
+                        <h5 class="card-title">{{ todo.name }}</h5>
+                    {% endif %}
+                    <p class="card-text text-muted">{{ todo.data_completed }}</p>
+                    <p class="card-text">{{ todo.description }}</p>
+                    {% if 'username' in session %}
+                        <a href="{{ url_for('update_todo', id=todo.id) }}" class="btn btn-outline-info btn-sm">Update</a>
+                        <a href="{{ url_for('delete_todo', id=todo.id) }}" class="btn btn-outline-danger btn-sm">Delete</a>
+                    {% endif %}
                 </div>
-                </div>
-                </div>
-            {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div id="logoutConfirmation" class="alert alert-warning alert-dismissible fade show" role="alert" 
+            style="position: fixed; top: 250px; left: 50%; transform: translateX(-50%); z-index: 9999; width: 550px; background-color: #d4b9a6; color: #333; text-align: center; padding-bottom: 20px;">
+            <strong>Todo eklemek ister misiniz?</strong>
+            <div style="display: flex; justify-content: center; margin-top: 20px;">
+            <form method="POST" style="margin-right: 10px;">
+                    <a href="{{ url_for('add_todo') }}" class="btn btn-secondary">Yes</a> 
+                <a href="{{ url_for('my_profile', username=session['username']) }}" class="btn btn-secondary">No</a>
+            </form>
+            </div>
+            </div>
+        {% endif %}
     </div>
     <div style="display: flex; justify-content: flex-end; position: fixed; top: 20px; right: 0; z-index: 9999;">
         <div class="dropdown">
-            <button id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: none; border: none; font-size: 30px;">
+            <button id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: none; border: none; font-size: 20px;">
                 <span style="color: aliceblue;">⋮</span>
             </button>
             <ul class="dropdown-menu" aria-labelledby="settingsDropdown" style="background-color: darkslategrey; color: rgb(125, 104, 76);">
                 <li><a class="dropdown-item" href="{{ url_for('profile_settings', id=user.id) }}" style="color: azure;">Profil</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('theme_settings') }}" style="color: azure;">Tema</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('change_theme_page') }}" style="color: azure;">Tema</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('logout') }}" style="color: azure;">Çıkış Yap</a></li>
             </ul>
         </div>
     </div>
+
 {% endblock %}

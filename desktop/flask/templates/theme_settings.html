@@ -1,23 +1,36 @@
 {% extends "settings.html" %}
+
 {% block content %}
-        <form method="POST" action="">
-            <label>
-                <input type="radio" name="theme" value="dark" {% if session.get('theme') == 'dark' %}checked{% endif %}>
-             Dark
-            </label>
-
-
-                <div class="center">
-                    <label>
-                    <input type="radio" name="theme" value="light" {% if session.get('theme') == 'light' %}checked{% endif %}>
-                    Light
-                    </label>
-                </div>
-            <label>
-                <input type="radio" name="theme" value="creamy" {% if session.get('theme') == 'creamy' %}checked{% endif %}>
-                Kremsi Tema
-            </label>
-            <button type="submit" class="btn btn-primary">ok</button>
-        </form>
+    <div id="themeSelector">
+        <h2>Select your theme:</h2>
+        <button onclick="changeTheme('light')" class="btn btn-light">Light Theme</button>
+        <button onclick="changeTheme('dark')" class="btn btn-dark">Dark Theme</button>
+        <button onclick="changeTheme('creamy')" class="btn btn-warning">Creamy Theme</button>
     </div>
-{%endblock%}
+
+
+    <script>
+        function changeTheme(theme) {
+            fetch('/change_theme', {
+                method: 'POST',  // Make sure it's a POST request
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ theme: theme }), // Send theme data as JSON
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.body.className = theme; // Update theme on frontend
+                    console.log('Theme changed to:', theme);
+                } else {
+                    console.error('Failed to change theme');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+
+{% endblock %}
