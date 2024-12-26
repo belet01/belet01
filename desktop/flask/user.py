@@ -38,8 +38,11 @@ class TodoItem(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
 
 
+
 with app.app_context():
     db.create_all()
+
+
 
 @app.route('/update_all_todos/<int:status>', methods=['GET'])
 def update_all_todos(status):
@@ -227,6 +230,7 @@ def my_profile(username):
     return render_template('myprofil.html', user=user, followers_count=follower_count, followees_count=followee_count, todo_count= todo_count, todos= todos)
 
 
+
 @app.route("/profil/update/<int:id>", methods=['GET', 'POST'])
 def profile_settings(id):
     users = db.session.query(Users).get(id)
@@ -234,7 +238,6 @@ def profile_settings(id):
         form = LoginForm(request.form)
         username = form.username.data
         password = form.password.data
-        
         db.session.query(Users).filter(Users.id == id).update({
             "username": username,
             "password_hash": password  
@@ -252,6 +255,8 @@ def profile_settings(id):
 
     return render_template("profil_settings.html", form=form, users=users)
 
+
+
 @app.route('/change_theme', methods=['POST'])
 def change_theme():
     data = request.get_json()
@@ -262,16 +267,17 @@ def change_theme():
     return jsonify({'success': False})
 
 
+
 @app.route('/change_theme_page')
 def change_theme_page():
     return render_template('theme_settings.html')
 
 
+
 @app.route('/follow/<int:user_id>', methods=['POST'])
 def follow(user_id):
     user_to_follow = Users.query.get_or_404(user_id)
-    username = session.get('username')  # Check if the user is logged in
-    
+    username = session.get('username')
     current_user = Users.query.filter_by(username=username).first()
     if current_user.id == user_to_follow.id:
         flash("You cannot follow yourself.", "danger")
@@ -287,6 +293,21 @@ def follow(user_id):
         flash("You have unfollowed this user.", "success")
     return redirect(url_for('home', username=user_to_follow.username ))
 
+
+
+
+@app.route('/<username>/connections/<string:connection_type>')
+def user_connections(username, connection_type):
+    user = Users.query.filter_by(username=username).first_or_404()
+    if connection_type == "followed":  # Takip ettikleri
+        connections = user.followed.all()
+        title = f"{user.username}'s follow"
+    elif connection_type == "followers":  # Takip edenler
+        connections = user.followers.all()
+        title = f"{user.username}'s follower"
+    else:
+        title = "Hata"
+    return render_template("connections.html", user=user, connections=connections, connection_type=connection_type, title=title)
 
 
 @app.route('/username/delete/<id>',  methods=['POST', 'GET'])

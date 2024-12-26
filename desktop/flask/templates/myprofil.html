@@ -23,15 +23,21 @@
         {% endif %}
             <!-- Takipçiler -->
             <div style="text-align: center;">
+                <!-- Follower -->
                 <h5 style="margin: 0;">Follower</h5>
-                <p style="margin: 0; font-size: 1.2em;">{{ followers_count }}</p>
+                <a href="{{ url_for('user_connections', username=user.username, connection_type='followers') }}" style="color: black;">
+                    <p style="margin: 0; font-size: 1.2em;">{{ followers_count }}</p>
+                </a>
             </div>
-
-            <!-- Takip edilen -->
+            
             <div style="text-align: center;">
+                <!-- Follow -->
                 <h5 style="margin: 0;">Follow</h5>
-                <p style="margin: 0; font-size: 1.2em;">{{ followees_count }}</p>
+                <a href="{{ url_for('user_connections', username=user.username, connection_type='followed') }}" style="color: black;">
+                    <p style="margin: 0; font-size: 1.2em;">{{ followees_count }}</p>
+                </a>
             </div>
+            
 
             <!-- Toplam yapılacak iş -->
             <div style="text-align: center;">
