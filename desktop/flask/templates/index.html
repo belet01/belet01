@@ -66,4 +66,12 @@
             </div>
         </div>
     {% endfor %}
+    
+    <!-- Login Button -->
+    {% if 'username' not in session %}
+        <div class="position-fixed" style="bottom: 20px; right: 20px;">
+            <a href="{{ url_for('login') }}" class="btn-outline-info btn-sm" >Login</a>
+        </div>
+    {% endif %}
+    
 {% endblock %}

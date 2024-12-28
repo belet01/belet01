@@ -18,6 +18,8 @@ class Users(db.Model):
     email = db.Column(db.String(120), nullable=False, unique=True)
     password_hash = db.Column(db.String(900), nullable=False)
     todos = db.relationship('TodoItem', backref='user', lazy=True)
+    bio = db.Column(db.String(300), nullable=True)
+    name = db.Column(db.String(80), nullable=True)
     followers = db.Table('followers',
         db.Column('follower_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
         db.Column('followed_id', db.Integer, db.ForeignKey('users.id'), primary_key=True)
@@ -62,7 +64,6 @@ def home():
         username = session['username']
         me = Users.query.filter_by(username=username).first()
         followed_users = me.followed.all()  # Kullanıcının takip ettiği kişiler
-
         todos = TodoItem.query.order_by(TodoItem.data_completed.desc()).all()
         return render_template("index.html", title="Layout page", todos=todos, me=me, theme=theme, followed_users=followed_users)
 
@@ -76,7 +77,6 @@ def home():
 def register():
     if 'username' in session:
         return redirect(url_for('home'))
-    
     form = RegisterForm()
     if request.method == 'POST' and form.validate_on_submit():
         username = form.username.data
@@ -120,7 +120,7 @@ def add_todo():
         flash("Todo ekleyemezsiniz!", "Hata")
         return redirect(url_for('login')) 
     form = TodoForm() 
-    if request.method== 'POST' and form.validate_on_submit():
+    if request.method== 'POST':
         todo_name = form.name.data
         todo_description = form.description.data
         completed = form.completed.data
@@ -226,7 +226,6 @@ def my_profile(username):
     todo_count = len(todos)
     follower_count = user.followers.count()  
     followee_count = user.followed.count()
-
     return render_template('myprofil.html', user=user, followers_count=follower_count, followees_count=followee_count, todo_count= todo_count, todos= todos)
 
 
@@ -238,22 +237,37 @@ def profile_settings(id):
         form = LoginForm(request.form)
         username = form.username.data
         password = form.password.data
-        db.session.query(Users).filter(Users.id == id).update({
-            "username": username,
-            "password_hash": password  
-        })
-        db.session.commit()
+        name = form.name.data  
+        biografi = form.biografi.data
+        if Users.query.filter(Users.username == username, Users.id != id).first():
+            flash("Username already exists!", "danger")
+            return redirect(url_for('profile_settings', id=users.id))
+        else: 
+            db.session.query(Users).filter(Users.id == id).update({
+                Users.username: username,
+                Users.password_hash: password,
+                Users.name: name,  # Name alanını güncelliyoruz
+                Users.bio: biografi  # Biografi alanını güncelliyoruz
+            })
+            db.session.commit()
+
+        # Session bilgilerini güncelleniyor
         session['username'] = username
-        session['password_hash'] = password 
+        session['password_hash'] = password
+        session['name'] = name  # Name bilgisi session'a ekleniyor
+        session['bio'] = biografi  # Biyografi bilgisi session'a ekleniyor
         flash("Profil başarıyla güncellendi!", "success")
-        return redirect(url_for('my_profile', username=session['username']))
+        return redirect(url_for('home', username=session['username']))
     else:
         form = LoginForm()
         if users:
             form.username.data = users.username
-            form.password.data = users.password_hash 
+            form.password.data = users.password_hash
+            form.name.data = users.name if users.name else ""  # Name form'a ekleniyor
+            form.biografi.data = users.bio if users.bio else ""  # Biografi form'a ekleniyor
 
     return render_template("profil_settings.html", form=form, users=users)
+
 
 
 
@@ -272,6 +286,11 @@ def change_theme():
 def change_theme_page():
     return render_template('theme_settings.html')
 
+@app.route("/all/users")
+def all_users():
+    usernames = db.session.query(Users.username).all()
+    title = "All users:"
+    return render_template("users.html", usernames= usernames, title= title)
 
 
 @app.route('/follow/<int:user_id>', methods=['POST'])
@@ -319,7 +338,7 @@ def delete_account(id):
     db.session.delete(user)
     db.session.commit()
     session.pop('username', None)
-    return redirect("/login")
+    return redirect("/register")
 
 if __name__== '__main__':
     app.run(debug=True)

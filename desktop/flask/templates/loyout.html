@@ -124,7 +124,7 @@
             margin-bottom: 10px;
         }
     </style>
-    {% elif session.get('theme') == 'creamy' %}
+    {% else %}
     <style>
         body {
             background: linear-gradient(to right, #f2dfaceb, #fde7fcf7); /* Kremsi, yumuşak tonlar */
@@ -230,6 +230,11 @@
                 <li class="nav-item">
                   <a class="nav-link page-link" href="{{url_for('add_todo')}}" style="color: black;">Add Todo</a>
                 </li>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto">
+                      <li class="nav-item active">
+                        <a class="nav-link page-link" href="{{url_for('all_users')}}" style="color: black;">Users</a>
+                      </li>
               </ul>
             </div>
             </nav>

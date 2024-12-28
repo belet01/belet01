@@ -3,30 +3,50 @@
 {% block title %}Profil Ayarları{% endblock %}
 
 {% block content %}
-<div class="container">
-
     <form method="POST" action="" class="position-relative">
         {{ form.hidden_tag() }}
 
         <!-- Kullanıcı Adı -->
         <div class="form-group mb-4">
-            <label for="username" class="form-label" style="display: block; font-weight: bold;">Kullanıcı Adı:</label>
+            <label for="username" class="form-label" style="display: block; font-weight: bold; width: 100%;">Kullanıcı Adı:</label>
             <input type="text" id="username" name="username" class="form-control" 
                    value="{{ form.username.data }}" required 
-                   style="border-radius: 5px; padding: 8px; width: 100%;">
+                   style="border-radius: 5px; padding: 8px; width: 100%;"> 
         </div>
 
         <!-- Şifre -->
-        <div class="form-group mb-4">
+        <div class="form-group mb-4" style="position: relative;">
             <label for="password" class="form-label" style="display: block; font-weight: bold;">Şifre:</label>
             <input type="password" id="password" name="password" class="form-control" 
                    value="{{ form.password.data }}" required 
-                   style="border-radius: 5px; padding: 8px; width: 100%;">
+                   style="border-radius: 10px; padding: 8px; width: 100%;"> 
+
+            <!-- Şifreyi göster/gizle butonu -->
+            <button type="button" id="togglePassword" 
+            style="position: absolute; left: 120px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #ff4d8b; cursor: pointer;">
+                    👁️
+                </button>
+    
+    
         </div>
 
-        <!-- Güncelle butonu sağ alt köşede -->
+        <!-- Biografi -->
+        <div class="form-group mb-4">
+            <label for="biography" class="form-label" style="display: block; font-weight: bold; width: 100%;">Biografi:</label>
+            <textarea id="biografi" name="biografi" class="form-control" 
+                      rows="4" style="border-radius: 5px; padding: 8px; width: 100%;">{{ form.biografi.data }}</textarea> 
+        </div>
+
+        <!-- Name -->
+        <div class="form-group mb-4">
+            <label for="name" class="form-label" style="display: block; font-weight: bold; width: 100%;">Name:</label>
+            <textarea id="name" name="name" class="form-control" 
+                      style="border-radius: 5px; padding: 8px; width: 100%;">{{ form.name.data }}</textarea> 
+        </div>
+
+        <!-- Güncelle butonu -->
         <button type="submit" class="btn btn-primary position-absolute" 
-                style="bottom: 20px; right: 20px; background-color: #f4a261; border-color: #f4a261;">
+                style="bottom: 20px; right: 20px; background-color: #fd89de; border-color: #f9defc;">
             Güncelle
         </button>
     </form>
@@ -38,17 +58,32 @@
         </a>
     </div>
 
-    <!-- Hesap Silme Formu (Sayfa altı) -->
+    <!-- Hesap Silme Formu -->
     <div class="form-group mt-5">
         <label for="delete_account" style="display: block; font-weight: bold; color: red;">Hesabınızı silmek istiyor musunuz?</label>
         <form method="POST" action='' id="deleteAccountForm">
             {% if 'username' in session %}
-                <a href="{{ url_for('delete_account', id=users.id) }}" class="btn btn-outline-info btn-sm">Yes</a>
+                <a href="{{ url_for('delete_account', id=users.id) }}" class="btn btn-outline-info btn-sm">Evet</a>
             {% endif %}
-                <a href="{{url_for('my_profile', username=session.get('username')) }}">No</a>
+            <a href="{{url_for('my_profile', username=session.get('username')) }}">Hayır</a>
         </form>
     </div>
 
-</div>
+    <script>
+        // Şifreyi göster ve gizle işlevi
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordField = document.getElementById('password');
+    
+        togglePassword.addEventListener('click', function () {
+            // Şifrenin tipini değiştirelim
+            const type = passwordField.type === 'password' ? 'text' : 'password';
+            passwordField.type = type;
+    
+            // Buton simgesini değiştirelim
+            this.textContent = type === 'password' ? '👁️' : '🙈';
+        });
+    </script>
 {% endblock %}
+
+
 

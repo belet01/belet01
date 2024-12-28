@@ -23,15 +23,15 @@
             border-radius: 8px;
             padding: 25px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-            border: 1px solid #ff4d8b; /* İnce pembemsi kenarlık */
+            border: 5px solid #ff4d8b; /* Border'ı kalınlaştırdık */
         }
 
         header {
             text-align: center;
             padding: 15px 0;
             background-color: #111;
-            color: #ff4d8b; /* Pembemsi yazı */
-            border-bottom: 2px solid #ff4d8b;
+            color: #ff4d8b;
+            border-bottom: 5px solid #ff4d8b; /* Alt çizgiyi büyütme */
         }
 
         footer {
@@ -40,6 +40,7 @@
             padding: 10px;
             background-color: #111;
             color: #fff;
+            border-top: 5px solid #ff4d8b; /* Üst çizgiyi büyütme */
         }
 
         label {
@@ -97,6 +98,33 @@
         .text-end {
             text-align: right;
         }
+
+        .alert {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .alert-success {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .alert-danger {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .alert-info {
+            background-color: #2196f3;
+            color: white;
+        }
+
+        .alert-warning {
+            background-color: #ff9800;
+            color: white;
+        }
     </style>
     {% block styles %}
     
@@ -104,9 +132,22 @@
 </head>
 <body>
     <header>
-        <h3>Settings</h3>
+        <h3>{{title}}</h3>
     </header>
     <div class="container">
+        <!-- Flash mesajlarını göstermek için alan -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div>
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
         {% block content %}
         
         {% endblock %}
